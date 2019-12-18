@@ -9,9 +9,24 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import com.wmjmc.reactspeech.VoicePackage;  // <--- import
+
+import com.wenkesj.voice.VoicePackage; // <------ Add this!
 
 public class MainApplication extends Application implements ReactApplication {
-
+  // @Override
+  //   protected List<ReactPackage> getPackages() {
+  //     return Arrays.<ReactPackage>asList(
+  //       new MainReactPackage(),
+  //       new VoicePackage() // <------ Add this!
+  //       );
+  //   }
+  @Override
+    protected List<ReactPackage> getPackages() {
+      return Arrays.<ReactPackage>asList(
+        new MainReactPackage(),
+        new VoicePackage()); // <--- added here
+    }
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHost(this) {
         @Override

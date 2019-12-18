@@ -14,13 +14,17 @@ import {
   View,
   Image,
   ImageBackground,
+  TouchableOpacity,
   Text,
   TextInput,
+  ToastAndroid,
   Button,
   FlatList,
   Dimensions,
   StatusBar,
 } from 'react-native';
+
+import SpeechAndroid from 'react-native-android-voice';
 
 import Divider from 'react-native-divider';
 
@@ -62,6 +66,35 @@ class App extends Component {
   _onLayoutDidChange = e => {
     const layout = e.nativeEvent.layout;
     this.setState({ size: { width: layout.width, height: layout.height } });
+  };
+
+  async _buttonClick(){
+    var spokenText = await SpeechAndroid.startSpeech("Speak yoo", SpeechAndroid.ENGLISH);
+    ToastAndroid.show(spokenText , ToastAndroid.LONG);
+    // Voice.start('es_US', {
+    //   "RECOGNIZER_ENGINE": "GOOGLE",
+    //    "EXTRA_PARTIAL_RESULTS": true
+    // })
+    try{
+        //More Locales will be available upon release.
+        var spokenText = await SpeechAndroid.startSpeech("Speak yo", SpeechAndroid.ENGLISH);
+        ToastAndroid.show(spokenText , ToastAndroid.LONG);
+
+        
+    }catch(error){
+        switch(error){
+            case SpeechAndroid.E_VOICE_CANCELLED:
+                ToastAndroid.show("Voice Recognizer cancelled" , ToastAndroid.LONG);
+                break;
+            case SpeechAndroid.E_NO_MATCH:
+                ToastAndroid.show("No match for what you said" , ToastAndroid.LONG);
+                break;
+            case SpeechAndroid.E_SERVER_ERROR:
+                ToastAndroid.show("Google Server Error" , ToastAndroid.LONG);
+                break;
+            /*And more errors that will be documented on Docs upon release*/
+        }
+    }
   };
  
   wikiSearch(){
@@ -216,6 +249,8 @@ class App extends Component {
 
       
 
+      
+
       let movieContent;
             
 
@@ -303,13 +338,28 @@ class App extends Component {
                   <TextInput
                     id="input"
                     style={{height: 40}}
-                    placeholder="Search for Celebrity..."
+                    placeholder="Search for Celebrity..." 
                     onChangeText={(input) => this.setState({input})}
-                    value={this.state.input}
+                    value={this.state.input} 
                   />
+
+                  <TouchableOpacity onPress={() => {this._buttonClick();}}>
+                    <Image source = {require('./assets/microphone.png')} style={styles.micImage} />
+                  </TouchableOpacity>
                   
                   
                 </View>
+
+                {/* <View style={styles.fixToText}>
+                  <Button style={styles.fixToText}
+                    id="infoBtn"
+                    color="red"
+                    onPress={() => {_buttonClick();}}
+                    title="Voice"
+                  />
+                  
+                  
+                  </View> */}
               
               <View style={styles.fixToText}>
                   <Button style={styles.fixToText}
@@ -357,15 +407,15 @@ class App extends Component {
                     onAnimateNextPage={p => console.log(p)}>
                     <View style={[{ backgroundColor: 'white' }, this.state.size]}>
 
-                    <Text style={styles.wikiStuff1}>Wikipedia Info:</Text>
+                    <Text style={styles.wikiStuff1}> <Image source = {require('./assets/wikiLogo.png')} style={styles.logoImage} /> Wikipedia Info:</Text>
 
                     <Text>
-                      <Text style={styles.wikiStuff2}>Name:</Text> 
+                      <Text style={styles.wikiStuff2}>Name: </Text> 
                       <Text style={styles.wikiStuff}>{this.state.wikis[0]}</Text>
                     </Text>
 
                     <Text>
-                      <Text style={styles.wikiStuff2}>Description:</Text> 
+                      <Text style={styles.wikiStuff2}>Description: </Text> 
                       <Text style={styles.wikiStuff}>{this.state.wikis[2]}</Text>
                     </Text>
                       
@@ -373,10 +423,10 @@ class App extends Component {
                     
 
                     
-                    <View style={[{ backgroundColor: '#119CFF' }, this.state.size]}>
+                    <View style={[{ backgroundColor: '#400040' }, this.state.size]}>
                       {/* We Know this Works */}
                       {/* {itunesContent} */}
-                      <Text style={styles.iTunesStuff1}>iTunes Info:</Text>
+                      <Text style={styles.iTunesStuff1}><Image source = {require('./assets/itunesLogo.png')} style={styles.logoImage} /> iTunes Info:</Text>
                       <FlatList
                         data={this.state.itunes}
                         renderItem={({ item }) => (
@@ -385,17 +435,17 @@ class App extends Component {
                             <Image source = {{ uri: item.artworkUrl60 }} style={styles.imageView} />
 
                             <Text>
-                              <Text style={styles.iTunesStuff}>Artist Name:</Text> 
+                              <Text style={styles.iTunesStuff}>Artist Name: </Text> 
                               <Text style={styles.iTunesStuff2}>{item.artistName}</Text>
                             </Text>
                           
                             <Text>
-                              <Text style={styles.iTunesStuff}>Collection Name:</Text> 
+                              <Text style={styles.iTunesStuff}>Collection Name: </Text> 
                               <Text style={styles.iTunesStuff2}>{item.collectionName}</Text>
                             </Text>
 
                             <Text>
-                              <Text style={styles.iTunesStuff}>Track Name:</Text> 
+                              <Text style={styles.iTunesStuff}>Track Name: </Text> 
                               <Text style={styles.iTunesStuff2}>{item.trackName}</Text>
                             </Text>
 
@@ -408,8 +458,8 @@ class App extends Component {
                         )}
                       />
                     </View>
-                    <View style={[{ backgroundColor: '#10C3E8' }, this.state.size]}>
-                      <Text style={styles.moviesStuff1}>Movies Info:</Text>
+                    <View style={[{ backgroundColor: '#010012'}, this.state.size]}>
+                      <Text style={styles.moviesStuff1}><Image source = {require('./assets/TMDBLogo.png')} style={styles.logoImage} /> Movies Info:</Text>
                       
                       {movieContent}
                       
@@ -473,10 +523,24 @@ const styles = StyleSheet.create({
     resizeMode: 'cover', 
     position: 'relative',
   },
+  logoImage:{
+    width: 30,
+    height: 30
+  },
+  micImage:{
+    width: 40,
+    height: 40
+    // backgroundColor: 'red',
+  },
   input: {
     marginTop: 20,
+    marginLeft: 55,
+    width: 300,
     backgroundColor: Colors.white,
     color: Colors.white,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between'
 
   },
   fixToText:{
@@ -486,7 +550,7 @@ const styles = StyleSheet.create({
   },
   carousel:{
     flex: 1,
-    marginTop: -350,
+    marginTop: -380,
     height: 1200,
   },
   wikiStuff1:{
@@ -505,26 +569,32 @@ const styles = StyleSheet.create({
   iTunesStuff1:{
     fontWeight: 'bold',
     fontSize: 24,
+    color: 'white',
   },
   iTunesStuff2:{
     fontWeight: 'bold',
     fontSize: 20,
+    color: 'white',
   },
   iTunesStuff:{
     fontSize: 18,
+    color: 'white',
     flexDirection: 'column',
     marginLeft: 7,
   },
   moviesStuff1:{
     fontWeight: 'bold',
     fontSize: 24,
+    color: 'white',
   },
   moviesStuff2:{
     fontWeight: 'bold',
     fontSize: 20,
+    color: 'white',
   },
   moviesStuff:{
     fontSize: 18,
+    color: 'white',
     flexDirection: 'column',
     marginLeft: 7,
   },
@@ -543,7 +613,7 @@ const styles = StyleSheet.create({
   },
   sectionContainerC: {
     marginTop: 265,
-    paddingHorizontal: 24,
+    paddingHorizontal: 55,
  },
   sectionContainer: {
     marginTop: 32,
